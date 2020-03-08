@@ -73,7 +73,7 @@ object applicativeExercises extends App {
 }
 
 
-object exercises3 extends App {
+object KleisliExercises extends App {
   import cats.data.Kleisli
   import cats.implicits._
   import scala.util.Try
@@ -114,20 +114,46 @@ object exercise4 extends App {
   fs.foldLeft(value.asRight[String])((a, b) => if (a.isLeft) a else b(value))
 }
 
-object exercise5 extends App {
+object ApplyMapN_Exercises extends App {
 
-  import cats._
   import cats.implicits._
 
   case class Dog(v1: Int, v2: Int, v3: Int)
 
-  (1.some,2.some,3.some).mapN(Dog.apply)
-  (1.some,2.some,none[Int]).mapN(Dog.apply)
+  val a = (1.some,2.some,3.some).mapN(Dog.apply)
+  val b = (1.some,2.some,none[Int]).mapN(Dog.apply)
+  val c = (1.valid[String], 2.valid[String], 3.valid[String]).mapN(Dog.apply)
 
-  (1.valid[String], 2.valid[String], 3.valid[String]).mapN(Dog.apply)
+  println(a)
+  println(b)
+  println(c)
+
+  //ValidatedNel has Functor and Semigroupal instances so we can just use mapN.
+  val d = (
+    1.validNec[String],
+    2.validNec[String],
+    3.validNec[String]
+  ).mapN (_ + _ + _)
+
+  val e = (
+    "error 1".invalidNec[Int],
+    "error 2".invalidNec[Int],
+    "error 3".invalidNec[Int]
+  ).mapN (_ + _ + _)
+
+  //There is Semigroup for String
+  val f = (
+    "error 1".invalid[Int],
+    "error 2".invalid[Int],
+    "error 3".invalid[Int]
+  ).mapN (_ + _ + _)
+
+  println(d)
+  println(e)
+  println(f)
 }
 
-object exercise6 extends App {
+object Validated_Exercise extends App {
   import cats.data._
   import cats._
   import cats.implicits._
@@ -172,10 +198,12 @@ object exercise6 extends App {
   validateEmail("abc@aaa.com")
   validateEmail("abc@aaa")
 
-  (
+  val a = (
     validateName("tom"),
     validateAge(-1),
     validateTel("2123123x"),
     validateEmail("abc@aaa")
   ).mapN(Person.apply)
+
+  println(a)
 }
