@@ -1,7 +1,7 @@
 package com.ming
 
 
-object monadExercises extends App {
+object Monad_Exercise extends App {
   trait Functor[F[_]] {
     def map[A, B](fa: F[A])(f: A => B): F[B]
   }
@@ -57,7 +57,7 @@ object monadExercises extends App {
   }
 }
 
-object applicativeExercises extends App {
+object Applicative_Exercise extends App {
   import cats._
   import cats.data._
   import cats.implicits._
@@ -72,7 +72,7 @@ object applicativeExercises extends App {
 
 }
 
-object KleisliExercises extends App {
+object KleisliExercise extends App {
   import cats.data.Kleisli
   import cats.implicits._
   import scala.util.Try
@@ -112,7 +112,7 @@ object exercise4 extends App {
   fs.foldLeft(value.asRight[String])((a, b) => if (a.isLeft) a else b(value))
 }
 
-object ApplyMapN_Exercises extends App {
+object ApplyMapN_Exercise extends App {
 
   import cats.implicits._
 
@@ -204,4 +204,65 @@ object Validated_Exercise extends App {
   ).mapN(Person.apply)
 
   println(a)
+}
+
+object ShowTypeClass_Exercise extends App {
+  trait Show[A] {
+    def show(a: A): String
+  }
+
+  object Show {
+    // summon
+    def apply[A](implicit instance: Show[A]): Show[A] = instance
+  }
+
+  object showSyntax {
+    implicit val showString = new Show[String] {
+      override def show(a: String): String = a
+    }
+
+    implicit class StringShow(s: String) {
+      def show = Show[String].show(s)
+    }
+  }
+
+  import showSyntax._
+
+  val a = Show[String].show("hello") //summon
+  val b = "world".show
+  println(a, b)
+}
+
+object LCDDisplay_Exercise extends App {
+  import cats._
+  import cats.implicits._
+
+  case class Display(line1: String, line2: String, line3: String)
+
+  object Display {
+    val digitalMapping = Map (
+      1 -> Display("  ¦", "  ¦", "  ¦"),
+      2 -> Display("⌜⎺⌝", "⌌-⌏", "¦_⌟")
+    )
+
+    implicit val displayShow = Show.show[Display](
+      d => {d.line1} + "\n" + {d.line2} + "\n" + {d.line3}
+    )
+
+    implicit val displayMoniod = new Monoid[Display] {
+      override def empty: Display = Display("", "", "")
+
+      override def combine(x: Display, y: Display): Display =
+        Display(x.line1 + " " + y.line1,
+          x.line2 + " " + y.line2,
+          x.line3 + " " + y.line3)
+    }
+
+    private def parse(s: String): Seq[Display] =
+      s.map(d => digitalMapping(d.asDigit))
+
+    def display(s: String) = Monoid[Display].combineAll(parse(s)).show
+  }
+
+  println(Display.display("21"))
 }
