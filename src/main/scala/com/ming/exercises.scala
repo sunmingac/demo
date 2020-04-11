@@ -72,7 +72,6 @@ object applicativeExercises extends App {
 
 }
 
-
 object KleisliExercises extends App {
   import cats.data.Kleisli
   import cats.implicits._
@@ -90,7 +89,6 @@ object KleisliExercises extends App {
   a.run("0")
   a.run("10")
 }
-
 
 object exercise4 extends App {
   def fun1(value: Int): Either[String, Int] = {println("f1"); if (value<100) Left("less than 100") else Right(value)}
